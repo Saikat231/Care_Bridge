@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-hero">
+    <span class="tag">Care Bridge</span>
+    <h1 class="page-title">Hospital Appointment & Patient Care System</h1>
+    <p class="page-meta">Secure care coordination for patients and doctors — streamlined, reliable, and ready for your next visit.</p>
+</div>
+
+<div class="card login-card">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <button type="submit">Sign in</button>
+    </form>
+</div>
+
+<style>
+.login-hero {
+    max-width: 720px;
+    margin: 0 auto 24px;
+    padding: 24px 18px 18px;
+    text-align: center;
+}
+
+.login-hero .tag {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 8px 14px;
+    color: white;
+    background: linear-gradient(135deg, #2f80ed, #56ccf2);
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.login-hero .page-title {
+    margin: 0 0 10px;
+    font-size: clamp(1.8rem, 2.5vw, 2.7rem);
+    line-height: 1.05;
+}
+
+.login-hero .page-meta {
+    margin: 0;
+    color: #475569;
+    font-size: 1rem;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.login-card {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 28px 24px;
+}
+
+.login-card h2 {
+    margin-bottom: 20px;
+    font-size: 1.45rem;
+}
+
+.login-card .form-group input {
+    min-height: 44px;
+}
+
+.login-card button {
+    width: 100%;
+}
+</style>
+{% endblock %}
