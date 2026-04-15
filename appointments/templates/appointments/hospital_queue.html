@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Hospital Queue</span>
+        <h1 class="page-title">Confirmed patient appointments</h1>
+        <p class="page-meta">Manage the queue with full patient details and appointment context for better hospital coordination.</p>
+    </div>
+</div>
+
+{% if appointments %}
+    <div class="grid-col-2">
+        {% for appointment in appointments %}
+            <div class="queue-card">
+                <div class="queue-card-header">
+                    <div>
+                        <h2>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</h2>
+                        <div class="small">{{ appointment.patient.username }} • {{ appointment.patient.email }}</div>
+                        {% if appointment.patient.profile.phone %}
+                            <div class="small">Phone: {{ appointment.patient.profile.phone }}</div>
+                        {% endif %}
+                    </div>
+                    <span class="queue-badge">#{{ appointment.queue_display }}</span>
+                </div>
+                <div class="queue-meta-grid">
+                    <div class="queue-metric">
+                        <strong>Doctor</strong>
+                        <p>{{ appointment.doctor.get_full_name|default:appointment.doctor.username }}</p>
+                        <p class="small">{{ appointment.doctor.profile.specialization|default:'General medicine' }}</p>
+                    </div>
+                    <div class="queue-metric">
+                        <strong>Appointment time</strong>
+                        <p>{{ appointment.scheduled_at|date:'F j, Y \a\t H:i' }}</p>
+                        <p class="small">Status: {{ appointment.get_status_display }}</p>
+                    </div>
+                    <div class="queue-metric">
+                        <strong>Hospital</strong>
+                        <p>{% if appointment.hospital %}{{ appointment.hospital.name }}{% else %}Unassigned{% endif %}</p>
+                        {% if appointment.hospital and appointment.hospital.phone %}
+                            <p class="small">{{ appointment.hospital.phone }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="queue-metric">
+                        <strong>Reason</strong>
+                        <p>{{ appointment.reason }}</p>
+                    </div>
+                </div>
+                <div class="card-row" style="margin-top: 18px;">
+                    <a class="button button-secondary" href="{% url 'send_notification' appointment.id %}">Message patient</a>
+                    <a class="button button-secondary" href="{% url 'edit_appointment' appointment.id %}">Edit appointment</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <p>No appointments in the queue yet.</p>
+    </div>
+{% endif %}
+{% endblock %}

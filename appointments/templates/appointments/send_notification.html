@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Notification</span>
+        <h1 class="page-title">{{ button_label }}</h1>
+        <p class="page-meta">Send a quick message to {{ recipient.get_full_name|default:recipient.username }} about this appointment.</p>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.message.label_tag }}
+            {{ form.message }}
+            {{ form.message.errors }}
+        </div>
+        <button type="submit" class="button">Send notification</button>
+        <a href="{% url 'my_appointments' %}" class="button button-secondary">Back to appointments</a>
+    </form>
+</div>
+{% endblock %}

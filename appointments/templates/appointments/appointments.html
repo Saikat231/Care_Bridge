@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h1>My appointments</h1>
+    {% if profile.role == 'doctor' %}
+        <p class="page-meta">Review appointment requests from patients, then confirm a scheduled time and send the final update.</p>
+    {% else %}
+        <p class="page-meta">Request an appointment and wait for the doctor to review it. You will receive the confirmation once it is scheduled.</p>
+    {% endif %}
+
+    <form method="get" class="search-bar">
+        <div class="form-group search-field">
+            <label for="status">Show</label>
+            <select id="status" name="status">
+                {% for value, label in status_options %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="button">Show appointments</button>
+    </form>
+
+    {% if selected_status != 'all' %}
+        <div class="section">
+            <h2>{{ status_heading }}</h2>
+            {% if appointments %}
+                {% for appointment in appointments %}
+                    <div class="list-row">
+                        <strong>Patient:</strong> {{ appointment.patient.username }}<br>
+                        <strong>Doctor:</strong> {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}<br>
+                        {% if appointment.hospital %}
+                            <strong>Hospital:</strong> {{ appointment.hospital.name }}<br>
+                        {% endif %}
+                        <strong>Serial number:</strong> {{ appointment.queue_display }}<br>
+                        <span class="small">{{ appointment.scheduled_at|date:'Y-m-d H:i' }} • {{ appointment.get_status_display }}</span>
+                        <p>{{ appointment.reason }}</p>
+                        {% if profile.role == 'doctor' and appointment.status == 'pending' %}
+                            <a class="button" href="{% url 'confirm_appointment' appointment.id %}">Confirm & Schedule</a>
+                        {% endif %}
+                        {% if profile.role == 'doctor' and appointment.status == 'confirmed' %}
+                            <a class="button" href="{% url 'edit_appointment' appointment.id %}">Edit appointment</a>
+                            <a class="button" href="{% url 'add_report' appointment.id %}">Add report</a>
+                        {% endif %}
+                        {% if profile.role == 'admin' %}
+                            <a class="button" href="{% url 'edit_appointment' appointment.id %}">Edit</a>
+                            <a class="button" href="{% url 'delete_appointment' appointment.id %}">Delete</a>
+                        {% endif %}
+                        {% if appointment.status != 'cancelled' %}
+                            {% if profile.role == 'doctor' or profile.role == 'patient' %}
+                                <a class="button button-secondary" href="{% url 'send_notification' appointment.id %}">Send notification</a>
+                            {% endif %}
+                            <a class="button" href="{% url 'cancel_appointment' appointment.id %}">Cancel</a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No appointments found for this status.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="section">
+            <h2>Pending appointment requests</h2>
+            {% for appointment in pending_appointments %}
+                <div class="list-row">
+                    <strong>Patient:</strong> {{ appointment.patient.username }}<br>
+                    <strong>Doctor:</strong> {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}<br>
+                    <strong>Requested for:</strong> {{ appointment.scheduled_at|date:'Y-m-d H:i' }}<br>
+                    <strong>Status:</strong> {{ appointment.get_status_display }}<br>
+                    <p>{{ appointment.reason }}</p>
+                    {% if profile.role == 'doctor' %}
+                        <a class="button" href="{% url 'confirm_appointment' appointment.id %}">Confirm & Schedule</a>
+                    {% elif profile.role == 'admin' %}
+                        <a class="button" href="{% url 'approve_appointment' appointment.id %}">Approve & Schedule</a>
+                        <a class="button" href="{% url 'edit_appointment' appointment.id %}">Edit</a>
+                        <a class="button" href="{% url 'delete_appointment' appointment.id %}">Delete</a>
+                    {% endif %}
+                    {% if appointment.status != 'cancelled' %}
+                        {% if profile.role == 'doctor' or profile.role == 'patient' %}
+                            <a class="button button-secondary" href="{% url 'send_notification' appointment.id %}">Send notification</a>
+                        {% endif %}
+                        <a class="button" href="{% url 'cancel_appointment' appointment.id %}">Cancel</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if scheduled_appointments %}
+        <div class="section">
+            <h2>Confirmed schedule</h2>
+            {% for appointment in scheduled_appointments %}
+                <div class="list-row">
+                    <strong>Patient:</strong> {{ appointment.patient.username }}<br>
+                    <strong>Doctor:</strong> {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}<br>
+                    <strong>Hospital:</strong>
+                        {% if appointment.hospital %}
+                            {{ appointment.hospital.name }}
+                        {% else %}
+                            Not assigned yet
+                        {% endif %}<br>
+                    <strong>Serial number:</strong> {{ appointment.queue_display }}<br>
+                    <span class="small">{{ appointment.scheduled_at|date:'Y-m-d H:i' }} • {{ appointment.get_status_display }}</span>
+                    <p>{{ appointment.reason }}</p>
+                    {% if profile.role == 'doctor' %}
+                        <a class="button" href="{% url 'edit_appointment' appointment.id %}">Edit appointment</a>
+                        <a class="button" href="{% url 'add_report' appointment.id %}">Add report</a>
+                    {% endif %}
+                    {% if profile.role == 'admin' %}
+                        <a class="button" href="{% url 'edit_appointment' appointment.id %}">Edit</a>
+                        <a class="button" href="{% url 'delete_appointment' appointment.id %}">Delete</a>
+                    {% endif %}
+                    {% if appointment.status != 'cancelled' %}
+                        {% if profile.role == 'doctor' or profile.role == 'patient' %}
+                            <a class="button button-secondary" href="{% url 'send_notification' appointment.id %}">Send notification</a>
+                        {% endif %}
+                        <a class="button" href="{% url 'cancel_appointment' appointment.id %}">Cancel</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if other_appointments %}
+        <div class="section">
+            <h2>Past appointments</h2>
+            {% for appointment in other_appointments %}
+                <div class="list-row">
+                    <strong>Patient:</strong> {{ appointment.patient.username }}<br>
+                    <strong>Doctor:</strong> {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}<br>
+                    <strong>Hospital:</strong>
+                        {% if appointment.hospital %}
+                            {{ appointment.hospital.name }}
+                        {% else %}
+                            Not assigned yet
+                        {% endif %}<br>
+                    <strong>Serial number:</strong> {{ appointment.queue_display }}<br>
+                    <span class="small">{{ appointment.scheduled_at|date:'Y-m-d H:i' }} • {{ appointment.get_status_display }}</span>
+                    <p>{{ appointment.reason }}</p>
+                    {% if profile.role == 'admin' %}
+                        <a class="button" href="{% url 'delete_appointment' appointment.id %}">Delete</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if selected_status == 'all' and not pending_appointments and not scheduled_appointments and not other_appointments %}
+        <p>You have no appointment requests or scheduled appointments yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

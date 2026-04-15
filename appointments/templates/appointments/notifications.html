@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Notifications</span>
+        <h1 class="page-title">Your notifications</h1>
+        <p class="page-meta">Review all alerts sent to you. Notifications from doctors, patients, and system events appear here.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="notification-header">
+        <strong>All notifications</strong>
+        <a href="{% url 'notifications_mark_read' %}" class="button button-secondary">Mark all read</a>
+    </div>
+    {% if notifications %}
+        <div class="notification-list">
+            {% for notification in notifications %}
+                <div class="notification-card">
+                    <strong>{{ notification.message }}</strong>
+                    <div class="small">{{ notification.created_at|date:'F j, Y H:i' }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="notification-empty">No notifications available yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

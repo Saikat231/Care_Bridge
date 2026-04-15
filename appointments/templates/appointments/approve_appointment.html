@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h1>Approve Appointment Request</h1>
+    <p>Approve the request from <strong>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</strong> and set the scheduled date and time.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Approve Appointment</button>
+        <a href="{% url 'my_appointments' %}" class="button button-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
