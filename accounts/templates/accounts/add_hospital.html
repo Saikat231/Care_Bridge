@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Add Hospital</span>
+        <h1 class="page-title">Register a new hospital</h1>
+        <p class="page-meta">Doctors and admins can add a hospital so it can be assigned to appointments and doctor profiles.</p>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-group">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.name.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {{ form.address.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.city.label_tag }}
+            {{ form.city }}
+            {{ form.city.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.phone.label_tag }}
+            {{ form.phone }}
+            {{ form.phone.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.banner_image.label_tag }}
+            {{ form.banner_image }}
+            {{ form.banner_image.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.logo.label_tag }}
+            {{ form.logo }}
+            {{ form.logo.errors }}
+        </div>
+        <button type="submit" class="button">Create hospital</button>
+        <a href="{% url 'hospital_list' %}" class="button button-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

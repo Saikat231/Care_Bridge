@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Hospitals</span>
+        <h1 class="page-title">Find the nearest care network</h1>
+        <p class="page-meta">Explore hospitals, review available services, and book appointments at the facility that fits your needs.</p>
+    </div>
+</div>
+
+<div class="grid-col-2">
+    {% if request.user.is_staff or request.user.profile.role == 'doctor' %}
+        <div class="hospital-card" style="grid-column: span 2;">
+            <div style="padding: 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #f8fafc; border-radius: 24px; border: 1px dashed rgba(37, 99, 235, 0.3);">
+                <div>
+                    <h2 style="margin:0;">Add a new hospital</h2>
+                    <p class="small" style="margin: 6px 0 0;">Doctors and admins can register a new hospital to the network.</p>
+                </div>
+                <a class="button" href="{% url 'add_hospital' %}">Add hospital</a>
+            </div>
+        </div>
+    {% endif %}
+    {% if hospitals %}
+        {% for hospital in hospitals %}
+            <div class="hospital-card">
+                {% if hospital.banner_image %}
+                    <img class="hospital-logo" src="{{ hospital.banner_image.url }}" alt="{{ hospital.name }}">
+                {% endif %}
+                <h2>{{ hospital.name }}</h2>
+                <div class="small">{{ hospital.city }} • {{ hospital.address }}</div>
+                <p class="small">{{ hospital.description|truncatechars:160 }}</p>
+                <div class="card-row">
+                    <a class="button" href="{% url 'hospital_detail' hospital.id %}">View details</a>
+                    {% if request.user.is_staff or request.user.profile.role == 'doctor' %}
+                        <a class="button button-secondary" href="{% url 'edit_hospital' hospital.id %}">Edit</a>
+                        <a class="button button-secondary" href="{% url 'delete_hospital' hospital.id %}">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <p>No hospitals available.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

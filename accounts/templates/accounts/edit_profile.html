@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Profile</span>
+        <h1 class="page-title">Edit your profile</h1>
+        <p class="page-meta">Update your personal information and profile details.</p>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+        {% if profile.role == 'doctor' %}
+        <div class="form-group">
+            {{ form.specialization.label_tag }}
+            {{ form.specialization }}
+            {{ form.specialization.errors }}
+        </div>
+        {% endif %}
+        <div class="form-group">
+            {{ form.phone.label_tag }}
+            {{ form.phone }}
+            {{ form.phone.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.profile_picture.label_tag }}
+            {{ form.profile_picture }}
+            {{ form.profile_picture.errors }}
+            {% if profile.profile_picture %}
+                <div style="margin-top: 10px;">
+                    <strong>Current picture:</strong><br>
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile picture" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ddd; margin-top: 8px;">
+                </div>
+            {% endif %}
+        </div>
+        {% if profile.role == 'doctor' or profile.role == 'patient' %}
+        <div class="form-group">
+            {{ form.hospital.label_tag }}
+            {{ form.hospital }}
+            {{ form.hospital.errors }}
+        </div>
+        {% endif %}
+        <button class="button" type="submit">Save changes</button>
+    </form>
+</div>
+{% endblock %}

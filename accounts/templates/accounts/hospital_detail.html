@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Hospital profile</span>
+        <h1 class="page-title">{{ hospital.name }}</h1>
+        <p class="page-meta">Review hospital details, explore doctors on-site, and track patient feedback from a unified overview.</p>
+    </div>
+</div>
+
+<div class="card">
+    {% if hospital.banner_image %}
+        <img src="{{ hospital.banner_image.url }}" alt="{{ hospital.name }}" style="width: 100%; max-height: 260px; object-fit: cover; border-radius: 20px; margin-bottom: 20px;">
+    {% endif %}
+    <div class="grid-col-2">
+        <div>
+            <h2>Overview</h2>
+            <p class="small"><strong>Location:</strong> {{ hospital.address }}, {{ hospital.city }}</p>
+            <p class="small">{{ hospital.description }}</p>
+        </div>
+        <div>
+            <h2>Hospital details</h2>
+            <p class="small"><strong>Email:</strong> {{ hospital.email }}</p>
+            <p class="small"><strong>Phone:</strong> {{ hospital.phone }}</p>
+            {% if request.user.is_staff or request.user.profile.role == 'doctor' %}
+                <div style="margin-top: 20px;">
+                    <a class="button button-secondary" href="{% url 'edit_hospital' hospital.id %}" style="display: inline-block; margin-right: 10px;">Edit hospital</a>
+                    <a class="button button-secondary" href="{% url 'delete_hospital' hospital.id %}" style="display: inline-block;">Delete hospital</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid-col-2">
+    <div class="card">
+        <h2>Doctors at {{ hospital.name }}</h2>
+        {% if doctors %}
+            {% for doctor in doctors %}
+                <div class="list-row">
+                    <div class="doctor-card-header">
+                        {% if doctor.profile_picture %}
+                            <img class="doctor-image" src="{{ doctor.profile_picture.url }}" alt="{{ doctor.user.get_full_name|default:doctor.user.username }}">
+                        {% else %}
+                            <div class="doctor-image" style="background: #e2e8f0"></div>
+                        {% endif %}
+                        <div>
+                            <strong>{{ doctor.user.get_full_name|default:doctor.user.username }}</strong>
+                            <div class="small">Specialization: {{ doctor.specialization|default:'General medicine' }}</div>
+                            <div class="small">Reviews: {{ doctor.user.doctor_reviews.count }}</div>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <a class="button" href="{% url 'book_appointment' doctor.user.id %}">Book appointment</a>
+                        <a class="button button-secondary" href="{% url 'submit_review' doctor.user.id %}">Leave review</a>
+                        {% if request.user.is_staff or request.user.profile.role == 'doctor' %}
+                            <a class="button button-secondary" href="{% url 'edit_doctor' doctor.user.id %}">Edit doctor</a>
+                            <a class="button button-secondary" href="{% url 'delete_doctor' doctor.user.id %}">Delete doctor</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No doctors assigned to this hospital yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Recent patient reviews</h2>
+        {% if hospital.reviews.exists %}
+            {% for review in hospital.reviews.all|slice:":5" %}
+                <div class="review-card">
+                    <strong>Dr. {{ review.doctor.get_full_name|default:review.doctor.username }}</strong>
+                    <div class="small">Rating: {{ review.rating }} / 5 — {{ review.patient.username }}</div>
+                    <p class="small" style="margin-top: 12px;">{{ review.comment }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No reviews available yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Dashboard</span>
+        <h1 class="page-title">Welcome back, {{ request.user.first_name|default:request.user.username }}</h1>
+        <p class="page-meta">Access hospital operations, appointment queues, and patient reviews from a single control center.</p>
+    </div>
+    <div class="profile-panel">
+        {% if profile.profile_picture %}
+            <img class="profile-avatar" src="{{ profile.profile_picture.url }}" alt="{{ request.user.username }}">
+        {% else %}
+            <div class="profile-avatar" style="background: #e2e8f0"></div>
+        {% endif %}
+        <div>
+            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+            <div class="small">{{ profile.get_role_display }}</div>
+            {% if profile.role != 'admin' %}
+                <div class="small">Hospital:
+                    {% if profile.hospital %}
+                        {{ profile.hospital.name }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+            {% endif %}
+            <div class="small">Unread alerts: {{ unread_notifications }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid">
+    {% if profile.role == 'hospital' %}
+        <div class="stat-card">
+            <span>Total patients</span>
+            <strong>{{ total_patients }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total doctors</span>
+            <strong>{{ total_doctors }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total appointments</span>
+            <strong>{{ total_appointments }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total reports</span>
+            <strong>{{ total_reports }}</strong>
+        </div>
+    {% elif profile.role == 'admin' %}
+        <div class="stat-card">
+            <span>Total patients</span>
+            <strong>{{ total_patients }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total doctors</span>
+            <strong>{{ total_doctors }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total hospitals</span>
+            <strong>{{ total_hospitals }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total appointments</span>
+            <strong>{{ total_appointments }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total reports</span>
+            <strong>{{ total_reports }}</strong>
+        </div>
+    {% else %}
+        <div class="stat-card">
+            <span>Upcoming appointments</span>
+            <strong>{{ appointments.count }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Recent reports</span>
+            <strong>{{ reports.count }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>My hospital</span>
+            <strong>
+                {% if profile.hospital %}
+                    {{ profile.hospital.name }}
+                {% else %}
+                    Not assigned
+                {% endif %}
+            </strong>
+        </div>
+        <div class="stat-card">
+            <span>Unread alerts</span>
+            <strong>{{ unread_notifications }}</strong>
+        </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Quick actions</h2>
+    <div class="card-row">
+        {% if profile.role == 'patient' %}
+            <a class="button" href="{% url 'edit_profile' %}">Edit profile</a>
+            <a class="button" href="{% url 'doctor_list' %}">Book appointment</a>
+            <a class="button" href="{% url 'my_appointments' %}">My appointments</a>
+            <a class="button" href="{% url 'report_list' %}">My reports</a>
+            <a class="button" href="{% url 'patient_queue' %}">My queue</a>
+        {% elif profile.role == 'doctor' %}
+            <a class="button" href="{% url 'edit_profile' %}">Edit profile</a>
+            <a class="button" href="{% url 'my_appointments' %}">My appointments</a>
+            <a class="button" href="{% url 'report_list' %}">My reports</a>
+        {% elif profile.role == 'hospital' %}
+            <a class="button" href="{% url 'hospital_list' %}">Hospitals</a>
+            <a class="button" href="{% url 'hospital_queue' %}">Hospital queue</a>
+        {% elif profile.role == 'admin' %}
+            <a class="button" href="{% url 'hospital_list' %}">Hospitals</a>
+            <a class="button" href="{% url 'add_doctor' %}">Add Doctor</a>
+            <a class="button" href="{% url 'doctor_list' %}">Edit Doctor</a>
+            <a class="button" href="{% url 'my_appointments' %}">Appointments</a>
+            <a class="button" href="{% url 'report_list' %}">Reports</a>
+            <a class="button" href="{% url 'hospital_list' %}">Manage hospitals</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid-col-2">
+    <div class="card">
+        <h2>Recent appointments</h2>
+        {% if profile.role == 'hospital' or profile.role == 'admin' %}
+            {% if appointments %}
+                {% for appointment in appointments %}
+                    <div class="list-row">
+                        <strong>{{ appointment.patient.username }} → {{ appointment.doctor.username }}</strong>
+                        <div class="small">{{ appointment.scheduled_at|date:'Y-m-d H:i' }} • {{ appointment.get_status_display }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No recent appointments.</p>
+            {% endif %}
+        {% else %}
+            {% if appointments %}
+                {% for appointment in appointments %}
+                    <div class="list-row">
+                        {% if profile.role == 'doctor' %}
+                            <strong>{{ appointment.patient.username }}</strong>
+                        {% else %}
+                            <strong>{{ appointment.doctor.username }}</strong>
+                        {% endif %}
+                        <div class="small">{{ appointment.scheduled_at|date:'Y-m-d H:i' }} • {{ appointment.get_status_display }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No recent appointments.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Recent reports</h2>
+        {% if reports %}
+            {% for report in reports %}
+                <div class="list-row">
+                    <strong>{{ report.title }}</strong>
+                    {% if profile.role == 'doctor' %}
+                        <div class="small">{{ report.created_at|date:'Y-m-d H:i' }} with {{ report.patient.username }}</div>
+                    {% else %}
+                        <div class="small">{{ report.created_at|date:'Y-m-d H:i' }} with {{ report.doctor.username }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No reports available yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
