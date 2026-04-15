@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Appointment</span>
+        <h1 class="page-title">Book with Dr. {{ doctor.get_full_name|default:doctor.username }}</h1>
+        <p class="page-meta">Schedule your next visit, choose a time, and confirm your appointment with a specialist.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="profile-card" style="margin-bottom: 18px;">
+        {% if doctor.profile.profile_picture %}
+            <img src="{{ doctor.profile.profile_picture.url }}" alt="{{ doctor.get_full_name|default:doctor.username }}">
+        {% else %}
+            <div style="width:72px; height:72px; border-radius:18px; background:#e2e8f0"></div>
+        {% endif %}
+        <div>
+            <strong>{{ doctor.get_full_name|default:doctor.username }}</strong>
+            <div class="small">{{ doctor.profile.specialization|default:'General medicine' }}</div>
+            <div class="small">Hospital: {% if doctor.profile.hospital %}{{ doctor.profile.hospital.name }}{% else %}Independent{% endif %}</div>
+        </div>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-group">
+            {{ form.scheduled_at.label_tag }}
+            {{ form.scheduled_at }}
+            {{ form.scheduled_at.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.reason.label_tag }}
+            {{ form.reason }}
+            {{ form.reason.errors }}
+        </div>
+        <button class="button" type="submit">Request appointment</button>
+    </form>
+    <p class="small" style="margin-top:16px;">Your request will be reviewed by the doctor. After the doctor confirms the appointment with a scheduled time, you will receive the final update.</p>
+</div>
+{% endblock %}

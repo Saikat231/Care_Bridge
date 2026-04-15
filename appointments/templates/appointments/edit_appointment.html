@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Appointment</h1>
+</div>
+
+<div class="form-container">
+    <div class="appointment-info">
+        <h2>Appointment Details</h2>
+        <p><strong>Patient:</strong> {{ appointment.patient.get_full_name|default:appointment.patient.username }}</p>
+        <p><strong>Current Status:</strong> {{ appointment.get_status_display }}</p>
+        {% if appointment.serial_number %}
+            <p><strong>Serial Number:</strong> {{ appointment.serial_number }}</p>
+        {% endif %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.scheduled_at.id_for_label }}">{{ form.scheduled_at.label }}</label>
+            {{ form.scheduled_at }}
+            {% if form.scheduled_at.errors %}
+                <div class="error">{{ form.scheduled_at.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.reason.id_for_label }}">{{ form.reason.label }}</label>
+            {{ form.reason }}
+            {% if form.reason.errors %}
+                <div class="error">{{ form.reason.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="button">Save Changes</button>
+            <a href="{% url 'my_appointments' %}" class="button button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.appointment-info {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.appointment-info h2 {
+    margin-top: 0;
+}
+
+.appointment-info p {
+    margin: 8px 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input[type="datetime-local"],
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.error {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.button:hover {
+    background-color: #1976D2;
+}
+
+.button-secondary {
+    background-color: #666;
+}
+
+.button-secondary:hover {
+    background-color: #555;
+}
+</style>
+{% endblock %}

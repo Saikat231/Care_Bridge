@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Doctors</span>
+        <h1 class="page-title">Available specialists</h1>
+        <p class="page-meta">Search doctors by name, specialization, and hospital. Book appointments quickly from the care network.</p>
+    </div>
+</div>
+
+<div class="search-bar">
+    <form method="get" style="width:100%; display:flex; gap:12px; flex-wrap:wrap;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by name or specialization" />
+        <button class="button" type="submit">Search</button>
+        {% if request.user.is_staff or request.user.profile.role == 'doctor' %}
+            <a class="button button-secondary" href="{% url 'add_doctor' %}">Add new doctor</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if doctors %}
+    <div class="grid-col-2">
+        {% for doctor in doctors %}
+            <div class="doctor-card">
+                <div class="doctor-card-header">
+                    {% if doctor.profile.profile_picture %}
+                        <img class="doctor-image" src="{{ doctor.profile.profile_picture.url }}" alt="{{ doctor.get_full_name|default:doctor.username }}">
+                    {% else %}
+                        <div class="doctor-image" style="background: #e2e8f0"></div>
+                    {% endif %}
+                    <div>
+                        <h2>{{ doctor.get_full_name|default:doctor.username }}</h2>
+                        <div class="small">{{ doctor.profile.specialization|default:'General medicine' }}</div>
+                        <div class="small">{{ doctor.email }}</div>
+                    </div>
+                </div>
+                <div class="small">Hospital: {% if doctor.profile.hospital %}{{ doctor.profile.hospital.name }}{% else %}Independent{% endif %}</div>
+                <div class="small">Reviews: {{ doctor.doctor_reviews.count }} total</div>
+                <div class="card-row">
+                    {% if request.user.profile.role == 'patient' %}
+                        <a class="button" href="{% url 'book_appointment' doctor.id %}">Book appointment</a>
+                        <a class="button button-secondary" href="{% url 'submit_review' doctor.id %}">Leave review</a>
+                    {% endif %}
+                    {% if request.user.is_staff or request.user.profile.role == 'doctor' or request.user.profile.role == 'admin' %}
+                        <a class="button button-secondary" href="{% url 'edit_doctor' doctor.id %}">Edit doctor</a>
+                        <a class="button button-secondary" href="{% url 'delete_doctor' doctor.id %}">Delete doctor</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <p>No doctors found.</p>
+    </div>
+{% endif %}
+{% endblock %}

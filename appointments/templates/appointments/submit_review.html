@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Feedback</span>
+        <h1 class="page-title">Review Dr. {{ doctor.get_full_name|default:doctor.username }}</h1>
+        <p class="page-meta">Share your experience and help other patients select the best care provider.</p>
+    </div>
+</div>
+
+<div class="card">
+    <p class="small">Hospital: {% if doctor.profile.hospital %}{{ doctor.profile.hospital.name }}{% else %}Independent{% endif %}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.rating.label_tag }}
+            {{ form.rating }}
+            {{ form.rating.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.comment.label_tag }}
+            {{ form.comment }}
+            {{ form.comment.errors }}
+        </div>
+        <button class="button" type="submit">Submit review</button>
+    </form>
+</div>
+{% endblock %}
