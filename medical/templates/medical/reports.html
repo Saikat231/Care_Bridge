@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Reports</span>
+        <h1 class="page-title">Medical reports</h1>
+        <p class="page-meta">Review recent patient reports, track visit history, and update report status when needed.</p>
+    </div>
+</div>
+
+<div class="card">
+    {% if reports %}
+        {% for report in reports %}
+            <div class="list-row">
+                <strong>{{ report.title }}</strong>
+                <div class="small">Created: {{ report.created_at|date:'Y-m-d H:i' }} • Status: {{ report.get_status_display }}</div>
+                <div class="small">Patient: {{ report.patient.username }} • Doctor: {{ report.doctor.get_full_name|default:report.doctor.username }}</div>
+                <p class="small">{{ report.details|linebreaksbr }}</p>
+                {% if report.report_image %}
+                    <div style="margin: 12px 0;">
+                        <img src="{{ report.report_image.url }}" alt="{{ report.title }}" style="max-width: 300px; max-height: 300px; border-radius: 4px; border: 1px solid #ddd; padding: 4px;">
+                    </div>
+                {% endif %}
+                <div class="card-row" style="margin-top: 14px;">
+                    <a class="button" href="{% url 'report_detail' report.id %}">View report</a>
+                    {% if profile.role == 'doctor' and report.status == 'draft' %}
+                        <a class="button button-secondary" href="{% url 'update_report' report.id %}">Update status</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No reports available yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
