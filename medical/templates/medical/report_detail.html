@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <span class="tag">Medical Report</span>
+        <h1 class="page-title">{{ report.title }}</h1>
+        <p class="page-meta">A complete view of your medical report with doctor notes, appointment context, image attachments, and status details.</p>
+    </div>
+</div>
+
+<div class="report-sheet">
+    <div class="report-header">
+        <div>
+            <div class="brand-logo">
+                <span>CB</span>
+                Care Bridge Medical Report
+            </div>
+            <p class="small">Report issued by <strong>{{ report.doctor.get_full_name|default:report.doctor.username }}</strong> for <strong>{{ report.patient.get_full_name|default:report.patient.username }}</strong>.</p>
+        </div>
+        <div>
+            <span class="report-badge">{{ report.get_status_display }}</span>
+            <p class="small">Created: {{ report.created_at|date:'F j, Y \a\t H:i' }}</p>
+        </div>
+    </div>
+
+    <div class="report-meta-grid">
+        <div class="report-meta-item">
+            <h4>Patient</h4>
+            <p>{{ report.patient.get_full_name|default:report.patient.username }}</p>
+            <p class="small">Username: {{ report.patient.username }}</p>
+        </div>
+        <div class="report-meta-item">
+            <h4>Doctor</h4>
+            <p>{{ report.doctor.get_full_name|default:report.doctor.username }}</p>
+            <p class="small">{{ report.doctor.email }}</p>
+        </div>
+        <div class="report-meta-item">
+            <h4>Appointment</h4>
+            {% if report.appointment %}
+                <p>{{ report.appointment.reason }}</p>
+                <p class="small">Scheduled for {{ report.appointment.scheduled_at|date:'F j, Y \a\t H:i' }}</p>
+                <p class="small">Status: {{ report.appointment.get_status_display }}</p>
+            {% else %}
+                <p>No appointment linked.</p>
+            {% endif %}
+        </div>
+        <div class="report-meta-item">
+            <h4>Reference</h4>
+            <p>Report ID: {{ report.id }}</p>
+            <p class="small">Last updated: {{ report.updated_at|date:'F j, Y \a\t H:i' }}</p>
+        </div>
+    </div>
+
+    <div class="report-section">
+        <h2>Doctor's findings</h2>
+        <div class="report-details">
+            <p>{{ report.details|linebreaksbr }}</p>
+        </div>
+    </div>
+
+    {% if report.report_image %}
+        <div class="report-section">
+            <h2>Attached image</h2>
+            <div class="report-image-frame">
+                <img src="{{ report.report_image.url }}" alt="{{ report.title }}">
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="report-divider"></div>
+
+    <div class="report-footer">
+        <a class="button button-secondary" href="{% url 'report_list' %}">Back to reports</a>
+        <button type="button" class="button" onclick="window.print()">Print report</button>
+    </div>
+</div>
+{% endblock %}
